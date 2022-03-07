@@ -9561,18 +9561,15 @@ static int detach_tasks(struct lb_env *env, struct rq_flags *rf)
 		if (!can_migrate_task(p, env))
 			goto next;
 
-#if defined(OPLUS_FEATURE_UIFIRST) && !defined(CONFIG_MTK_TASK_TURBO)
-// XieLiujie@BSP.KERNEL.PERFORMANCE, 2020/05/25, Add for UIFirst
-		if (sysctl_uifirst_enabled && test_task_ux(p)) {
-			if (sysctl_launcher_boost_enabled && is_heavy_ux_task(p) && test_ux_task_cpu(task_cpu(p)) &&
-					!test_ux_task_cpu(env->dst_cpu))
-				goto next;
+		/*
+		 * Depending of the number of CPUs and tasks and the
+		 * cgroup hierarchy, task_h_load() can return a null
+		 * value. Make sure that env->imbalance decreases
+		 * otherwise detach_tasks() will stop only after
+		 * detaching up to loop_max tasks.
+		 */
+		load = max_t(unsigned long, task_h_load(p), 1);
 
-			if ((!sysctl_launcher_boost_enabled || is_heavy_ux_task(p)) && !list_empty(&env->dst_rq->ux_thread_list))
-				goto next;
-		}
-#endif /* OPLUS_FEATURE_UIFIRST */
-		load = task_h_load(p);
 
 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
 			goto next;
