@@ -1173,8 +1173,6 @@ static int move_expired_inodes(struct list_head *delaying_queue,
 		list_move(&inode->i_io_list, &tmp);
 		moved++;
 		spin_lock(&inode->i_lock);
-		if (flags & EXPIRE_DIRTY_ATIME)
-			inode->i_state |= I_DIRTY_TIME_EXPIRED;
 		inode->i_state |= I_SYNC_QUEUED;
 		spin_unlock(&inode->i_lock);
 		if (sb_is_blkdev_sb(inode->i_sb))
@@ -1222,19 +1220,11 @@ static void queue_io(struct bdi_writeback *wb, struct wb_writeback_work *work,
 
 	assert_spin_locked(&wb->list_lock);
 	list_splice_init(&wb->b_more_io, &wb->b_io);
-<<<<<<< HEAD
-	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, dirtied_before);
-	if (!work->for_sync)
-		time_expire_jif = jiffies - dirtytime_expire_interval * HZ;
-	moved += move_expired_inodes(&wb->b_dirty_time, &wb->b_io,
-				     time_expire_jif);
-=======
 	moved = move_expired_inodes(&wb->b_dirty, &wb->b_io, 0, dirtied_before);
 	if (!work->for_sync)
 		time_expire_jif = jiffies - dirtytime_expire_interval * HZ;
 	moved += move_expired_inodes(&wb->b_dirty_time, &wb->b_io,
 				     EXPIRE_DIRTY_ATIME, time_expire_jif);
->>>>>>> v4.14.196
 	if (moved)
 		wb_io_lists_populated(wb);
 	trace_writeback_queue_io(wb, work, dirtied_before, moved);
