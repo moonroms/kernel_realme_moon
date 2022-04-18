@@ -5,10 +5,10 @@ function compile()
 
 source ~/.bashrc && source ~/.profile
 export LC_ALL=C && export USE_CCACHE=1
-export ccache -M 100G
+ccache -M 70G
 export ARCH=arm64
 export KBUILD_BUILD_HOST=GearCI
-export KBUILD_BUILD_USER="eun0115"
+export KBUILD_BUILD_USER="DPSLEGEND"
 git clone --depth=1 https://github.com/sarthakroy2002/android_prebuilts_clang_host_linux-x86_clang-6443078 clang
 git clone --depth=1 https://github.com/sarthakroy2002/prebuilts_gcc_linux-x86_aarch64_aarch64-linaro-7 los-4.9-64
 git clone --depth=1 https://github.com/sarthakroy2002/linaro_arm-linux-gnueabihf-7.5 los-4.9-32
@@ -27,12 +27,12 @@ make -j$(nproc --all) O=out \
 
 function zupload()
 {
-git clone --depth=1 https://github.com/eun0115/AnyKernel3.git -b moon AnyKernel
+git clone --depth=1 https://github.com/DPSLEGEND/Anykernel3.git -b moon AnyKernel
 cp out/arch/arm64/boot/Image.gz-dtb AnyKernel
 cd AnyKernel
-zip -r9 Test-MoonlightKernel-moon.zip *
+zip -r9 Test-DolphinKernel-moon.zip *
 curl -sL https://git.io/file-transfer | sh
-./transfer wet Test-MoonlightKernel-moon.zip
+./transfer wet Test-DolphinKernel-moon.zip
 }
 
 compile
